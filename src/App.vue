@@ -10,34 +10,63 @@ import { searchResults, type SearchResult } from './lib/searchService'
 const results = ref<SearchResult[]>([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
+const currentPage = ref(0)
+const hitsPerPage = 6
+const currentQuery = ref('')
 
 const handleSearch = async (query: string) => {
   if (!query.trim()) {
     results.value = []
     hasSearched.value = false
+    currentQuery.value = ''
+    currentPage.value = 0
     return
   }
+
+  currentQuery.value = query
+  currentPage.value = 0
+  await fetchResults()
+}
+
+const fetchResults = async () => {
+  if (!currentQuery.value) return
 
   isLoading.value = true
   hasSearched.value = true
 
   try {
-    results.value = await searchResults(query)
+    results.value = await searchResults(currentQuery.value, {
+      hitsPerPage,
+      page: currentPage.value,
+    })
   } finally {
     isLoading.value = false
   }
+}
+
+const goToPage = async (page: number) => {
+  currentPage.value = page
+  await fetchResults()
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-background selection:bg-primary/10 selection:text-primary">
+    <div class="relative h-full w-full bg-background">
+      <div
+        class="absolute bottom-0 left-[-20%] right-0 top-[-10%] hidden md:block h-125 w-125 rounded-full bg-radial-orange"
+      ></div>
+      <div
+        class="absolute bottom-0 right-[-20%] top-[-10%] hidden md:block h-125 w-125 rounded-full bg-radial-orange"
+      ></div>
+    </div>
     <Header />
     <main class="container mx-auto px-4 py-12 md:py-24">
       <div class="max-w-3xl mx-auto text-center space-y-4 mb-12">
         <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-foreground">
           Search the
-          <span class="bg-linear-to-br from-teal-600 to-primary bg-clip-text text-transparent"
-            >Future.</span
+          <span class="bg-linear-to-br from-yellow-500 to-primary bg-clip-text text-transparent px-1"
+            >HackerNews</span
           >
         </h1>
         <p class="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto">
@@ -55,7 +84,14 @@ const handleSearch = async (query: string) => {
         </div>
 
         <div v-else-if="hasSearched">
-          <SearchResultList :results="results" :isLoading="isLoading" />
+          <SearchResultList
+            :results="results"
+            :isLoading="isLoading"
+            :currentPage="currentPage"
+            :hitsPerPage="hitsPerPage"
+            @next-page="goToPage(currentPage + 1)"
+            @prev-page="goToPage(currentPage - 1)"
+          />
         </div>
 
         <div v-else class="max-w-2xl mx-auto text-center py-24 space-y-4">
@@ -86,3 +122,14 @@ const handleSearch = async (query: string) => {
     </footer>
   </div>
 </template>
+
+<style scoped>
+.bg-radial-orange {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 108, 0, 0.15),
+    rgba(255, 255, 255, 0)
+  );
+  filter: blur(100px);
+}
+</style>
