@@ -80,10 +80,6 @@ Suggestions to scale / improve
 
 - Cache search results (in-memory or via indexedDB) to reduce API usage and improve perceived speed.
 - Upgrade pagination to infinite scroll or cursor-based loading for larger datasets.
-- Add a global state store (Pinia) if search state must be shared across multiple pages.
-- Add unit and integration tests for components (Vitest + Testing Library).
-- Add accessibility improvements: better ARIA attributes for expandable cards and pagination, and focus management when results update.
-- Add optional dark mode and small UI theming system.
 - Implement offline fallback / service-worker for reliability.
 
 Troubleshooting
