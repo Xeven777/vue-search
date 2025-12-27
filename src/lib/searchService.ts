@@ -3,11 +3,39 @@ export interface SearchResult {
   title: string
   snippet: string
   description: string
+  tags?: string[]
   metadata?: string
   url?: string
   author?: string
   points?: number
   created_at?: string
+}
+
+interface HighlightResultField {
+  value: string
+  matchLevel: 'none' | 'partial' | 'full'
+  matchedWords: string[]
+  fullyHighlighted?: boolean
+}
+
+interface AlgoliaHit {
+  objectID: string
+  title: string
+  url: string
+  author: string
+  points: number
+  created_at: string
+  created_at_i: number
+  num_comments: number
+  story_id: number
+  updated_at: string
+  _tags: string[]
+  children: number[]
+  _highlightResult: {
+    author: HighlightResultField
+    title: HighlightResultField & { fullyHighlighted: boolean }
+    url: HighlightResultField
+  }
 }
 
 export const searchResults = async (
@@ -27,48 +55,23 @@ export const searchResults = async (
     const response = await fetch(url)
     const data = await response.json()
 
-    interface AlgoliaHit {
-      objectID?: string
-      title?: string
-      story_title?: string
-      story_text?: string
-      comment_text?: string
-      url?: string
-      story_url?: string
-      author?: string
-      points?: number
-      created_at?: string
-      _highlightResult?: Record<string, unknown>
-    }
-
     const hits: AlgoliaHit[] = Array.isArray(data.hits) ? data.hits : []
 
-    const stripHtml = (s: string | undefined) => (s ? s.replace(/<[^>]+>/g, '') : '')
-
-    return hits.slice(0, hitsPerPage).map((hit: AlgoliaHit, idx: number) => {
-      const numericId = Number(hit.objectID) || Date.now() + idx
-      const title = hit.title || hit.story_title || '(no title)'
-      const storyText = stripHtml(hit.story_text || hit.comment_text || '')
-      const urlField = hit.url || hit.story_url || ''
-      const snippet = storyText
-        ? storyText.substring(0, 120) + (storyText.length > 120 ? '...' : '')
-        : urlField
-      const description = storyText || (urlField ? `URL: ${urlField}` : '')
-      const metadata = `Author: ${hit.author || 'unknown'} • Points: ${
-        hit.points ?? 0
-      } • ${hit.created_at ? new Date(hit.created_at).toLocaleString() : ''}`
+    return hits.map((hit: AlgoliaHit, idx: number): SearchResult => {
+      const date = new Date(hit.created_at)
 
       return {
-        id: numericId,
-        title: title.charAt(0).toUpperCase() + title.slice(1),
-        snippet,
-        description,
-        metadata,
-        url: urlField,
+        id: Number(hit.objectID) || Date.now() + idx,
+        title: hit.title.charAt(0).toUpperCase() + hit.title.slice(1),
+        snippet: hit.url,
+        description: hit.url,
+        tags: hit._tags,
+        metadata: `Author: ${hit.author} • Points: ${hit.points} • Comments: ${hit.num_comments} • ${date.toLocaleString()}`,
+        url: hit.url,
         author: hit.author,
         points: hit.points,
         created_at: hit.created_at,
-      } as SearchResult
+      }
     })
   } catch (error) {
     console.error('Search API error:', error)
