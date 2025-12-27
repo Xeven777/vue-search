@@ -1,6 +1,6 @@
 # vue-search
 
-![ss](public/og-img.jpeg)
+![ss](public/og-img.webp)
 A small, component-driven Vue 3 + Vite search UI demo. This project implements the search tool UI and demonstrates component reusability, dynamic search results, basic animations, and simple pagination.
 
 **Key features**
