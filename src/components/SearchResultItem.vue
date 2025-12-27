@@ -58,8 +58,8 @@ const formatDate = (iso?: string) => {
           </div>
         </div>
         <div class="mt-1">
-          <ChevronDown v-if="!isExpanded" class="h-5 w-5 text-muted-foreground" />
-          <ChevronUp v-else class="h-5 w-5 text-primary" />
+          <ChevronDown v-if="!isExpanded" class="size-5 text-muted-foreground" />
+          <ChevronUp v-else class="size-5 text-primary" />
         </div>
       </div>
     </CardHeader>

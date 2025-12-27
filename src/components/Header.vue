@@ -11,8 +11,8 @@ const mode = useColorMode()
   <header class="sticky top-0 z-50 w-full border-b bg-background/60 backdrop-blur-lg">
     <div class="container mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-          <SearchIcon class="h-5 w-5 text-primary-foreground" />
+        <div class="size-8 bg-primary rounded-lg flex items-center justify-center">
+          <SearchIcon class="size-5 text-primary-foreground" />
         </div>
         <span class="text-xl font-bold tracking-tight">VueSearch</span>
       </div>
